@@ -1,14 +1,27 @@
 const Visiteur = require('../models/visiteur');
 
-exports.createVisiteur = (req, res, next) => {
-  const visiteur = new Visiteur({
-    nom: req.body.nom,
-    prenom: req.body.prenom,
-    tel: req.body.tel,
-    email: req.body.email,
-    date_embauche: req.body.date_embauche
-  });
+//DEBUT filtre
+const { body, validattionResult } = requiere ('express-validator');
 
+exports.createVisiteur = [
+  body('email').isEmail().withMessage('Veuillez entrer un email valide. ').normalizeEmail(),
+  body('nom').isLength({ min: 2}).withMessage('Le nom doit contenir au moin 2 caracteres.'),
+  asyncHandler(async (req, res, next) => {
+
+    const errors = validattionResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400). json({errors: errors.array()});
+    }
+    const visiteur = new Visiteur({
+      nom: req.body.nom,
+      prenom: req.body.prenom,
+      tel: req.body.tel,
+      email: req.body.email,
+      date_embauche: req.body.date_embauche
+    });
+//FIN filtre
+{
+  
   visiteur.save().then(
     () => {
       res.status(201).json({
@@ -22,7 +35,7 @@ exports.createVisiteur = (req, res, next) => {
       });
     }
   );
-};
+}];
 
 exports.getOneVisiteur = (req, res, next) => {
   Visiteur.findOne({
