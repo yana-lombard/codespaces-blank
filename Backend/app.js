@@ -1,12 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+const auth = require('./middlewares/auth');
 
 const stuffRoutes = require('./routes/stuff');
 const motifRoutes = require('./routes/motif');
 const visiteurRoutes = require('./routes/visiteur');
 const visiteRoutes = require('./routes/visite');
 const praticientRoutes = require('./routes/praticient');
+const userRoutes = require('./routes/user');
+
 
 const app = express();
 
@@ -24,9 +27,10 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/stuff', stuffRoutes);
-app.use('/api/motifs', motifRoutes);
-app.use('/api/visiteurs', visiteurRoutes);
-app.use('/api/visites', visiteRoutes);
-app.use('/api/praticients', praticientRoutes);
+app.use('/api/motifs', auth, motifRoutes);
+app.use('/api/visiteurs', auth, visiteurRoutes);
+app.use('/api/visites', auth, visiteRoutes);
+app.use('/api/praticients', auth, praticientRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;

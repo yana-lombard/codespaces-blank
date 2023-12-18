@@ -1,42 +1,40 @@
 const Visiteur = require('../models/visiteur');
-
-//DEBUT filtre
-const { body, validattionResult } = requiere ('express-validator');
+const { body, validationResult } = require('express-validator');
+const asyncHandler = require('express-async-handler');
 
 exports.createVisiteur = [
-  body('email').isEmail().withMessage('Veuillez entrer un email valide. ').normalizeEmail(),
-  body('nom').isLength({ min: 2}).withMessage('Le nom doit contenir au moin 2 caracteres.'),
+  body('email').isEmail().withMessage('Veuillez entrer un email valide.').normalizeEmail(),
+  body('nom').isLength({ min: 2 }).withMessage('Le nom doit contenir au moins 2 caractères.'),
   asyncHandler(async (req, res, next) => {
-
-    const errors = validattionResult(req);
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400). json({errors: errors.array()});
+      return res.status(400).json({ errors: errors.array() });
     }
+
     const visiteur = new Visiteur({
       nom: req.body.nom,
       prenom: req.body.prenom,
       tel: req.body.tel,
       email: req.body.email,
-      date_embauche: req.body.date_embauche
+      date_embauche: req.body.date_embauche,
+      visites: req.body.visites,
     });
-//FIN filtre
-{
-  
-  visiteur.save().then(
-    () => {
-      res.status(201).json({
-        message: 'Visiteur created successfully!',
-      });
-    }
-  ).catch(
-    (error) => {
-      res.status(400).json({
-        error: error,
-      });
-    }
-  );
-}];
 
+    visiteur.save().then(
+      () => {
+        res.status(201).json({
+          message: 'Visiteur created successfully!',
+        });
+      }
+    ).catch(
+      (error) => {
+        res.status(400).json({
+          error: error,
+        });
+      }
+    );
+  })
+];
 exports.getOneVisiteur = (req, res, next) => {
   Visiteur.findOne({
     _id: req.params.id,
